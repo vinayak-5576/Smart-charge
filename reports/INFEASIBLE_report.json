@@ -1,0 +1,16 @@
+{
+    "scenario": "INFEASIBLE",
+    "ev_count": 500,
+    "charger_count": 20,
+    "grid_capacity": 2500.0,
+    "total_energy_req": 33093.23,
+    "baseline_peak": 4152.648888888887,
+    "baseline_violations": 726,
+    "smart_peak": 4152.648888888887,
+    "smart_violations": 726,
+    "reduction": 0.0,
+    "deadline_compliance": 0,
+    "energy_delivered": 28438.89388888889,
+    "average_delay_hours": 2.407473588030922,
+    "feasible": false
+}

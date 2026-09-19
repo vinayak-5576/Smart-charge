@@ -1,0 +1,12 @@
+.git
+.aws-sam
+__pycache__
+*.pyc
+frontend/
+docs/
+reports/
+scratch/
+scripts/
+notebooks/
+*.csv
+.env

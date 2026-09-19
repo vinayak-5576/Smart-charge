@@ -1,0 +1,16 @@
+{
+    "scenario": "HIGH_STRESS",
+    "ev_count": 500,
+    "charger_count": 20,
+    "grid_capacity": 2500.0,
+    "total_energy_req": 32862.93,
+    "baseline_peak": 5051.325,
+    "baseline_violations": 261,
+    "smart_peak": 5051.325,
+    "smart_violations": 261,
+    "reduction": 0.0,
+    "deadline_compliance": 500,
+    "energy_delivered": 32862.93,
+    "average_delay_hours": 2.815799266666025,
+    "feasible": false
+}

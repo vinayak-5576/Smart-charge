@@ -1,0 +1,16 @@
+{
+    "scenario": "NORMAL_EVENING",
+    "ev_count": 500,
+    "charger_count": 20,
+    "grid_capacity": 2500.0,
+    "total_energy_req": 18129.81,
+    "baseline_peak": 3609.972777777778,
+    "baseline_violations": 123,
+    "smart_peak": 852.45327,
+    "smart_violations": 0,
+    "reduction": 76.38615794425043,
+    "deadline_compliance": 500,
+    "energy_delivered": 18129.8100003734,
+    "average_delay_hours": 6.360397934879676,
+    "feasible": true
+}

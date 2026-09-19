@@ -1,0 +1,11 @@
+frontend/
+.venv/
+.pytest_cache/
+reports/
+scripts/
+tests/
+scratch/
+analyze_data.py
+corr_check.py
+*.md
+.git/
