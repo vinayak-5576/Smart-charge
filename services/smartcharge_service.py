@@ -63,10 +63,10 @@ def run_forecast_optimized_simulation(config):
     # Energy requirement
     energy_required = sum(r['energy_required_kWh'] for r in requests)
         
-    # Apply What-If Solar Capacity (Optional: this could generate a renewable_profile array, but Engine handles default generation for MVP)
-    # We pass it just to trigger the default logic in engine if requested
+    # Apply What-If Solar Capacity
     solar_modifier = config.get('solar_capacity_modifier', 0.0)
-        
+    if solar_modifier > 0:
+        grid_capacity += (grid_capacity * (solar_modifier / 100.0))
     # 2, 4, 5. Run core simulation (which internally handles forecast, baseline, and optimization)
     try:
         results = core_sim(
