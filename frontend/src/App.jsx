@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
-import { Activity, Calendar, Zap, ZapOff } from 'lucide-react';
+import { Activity, Calendar, Zap, ZapOff, AlertCircle, ShieldCheck } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import ScheduleTable from './components/ScheduleTable';
 import SimulationPanel from './components/SimulationPanel';
+import AlertsPanel from './components/AlertsPanel';
+import AuditLog from './components/AuditLog';
 
 function App() {
   const [simulationData, setSimulationData] = useState(null);
@@ -31,6 +33,16 @@ function App() {
               <ZapOff size={18} /> Simulation / Impact
             </div>
           </NavLink>
+          <NavLink to="/alerts" className={({ isActive }) => isActive ? "active" : ""}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertCircle size={18} /> Alerts
+            </div>
+          </NavLink>
+          <NavLink to="/audit" className={({ isActive }) => isActive ? "active" : ""}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldCheck size={18} /> Audit Log
+            </div>
+          </NavLink>
         </div>
       </nav>
 
@@ -39,6 +51,8 @@ function App() {
           <Route path="/" element={<Dashboard simulationData={simulationData} />} />
           <Route path="/schedule" element={<ScheduleTable simulationData={simulationData} />} />
           <Route path="/simulation" element={<SimulationPanel setSimulationData={setSimulationData} simulationData={simulationData} />} />
+          <Route path="/alerts" element={<AlertsPanel />} />
+          <Route path="/audit" element={<AuditLog />} />
         </Routes>
       </main>
     </div>

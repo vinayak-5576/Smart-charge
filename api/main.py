@@ -9,6 +9,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from services.smartcharge_service import run_forecast_optimized_simulation
 from api.aws_storage import Storage
+from api.database import Database
 from models.integration.forecast_optimizer import generate_aligned_forecast
 import numpy as np
 
@@ -40,6 +41,20 @@ def create_simulation(config: dict = Body(...)):
         if not saved:
             raise HTTPException(status_code=500, detail="Failed to persist simulation results")
             
+        # Evaluate for alerts
+        if not result.get('feasible', True):
+            Database.save_alert({
+                "type": "INFEASIBLE_SCHEDULE",
+                "message": f"Simulation {sim_id} was infeasible. Reason: {result.get('failure_reason', 'Unknown')}",
+                "severity": "HIGH"
+            })
+        elif not result.get('grid_compliance', True):
+            Database.save_alert({
+                "type": "GRID_VIOLATION",
+                "message": f"Simulation {sim_id} violates grid capacity constraints.",
+                "severity": "CRITICAL"
+            })
+            
         # Return a summarized version (omit the bulky schedule/timeseries)
         summary = {k: v for k, v in result.items() if k not in ['schedule']}
         if 'forecast' in summary and 'time_series' in summary['forecast']:
@@ -47,6 +62,17 @@ def create_simulation(config: dict = Body(...)):
             
         return summary
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/alerts")
+def get_alerts():
+    """
+    Retrieves all active alerts (e.g. congestion risks, infeasibility).
+    """
+    try:
+        alerts = Database.get_alerts()
+        return {"alerts": alerts}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -92,6 +118,40 @@ def get_forecast():
             "time_series": [float(x) for x in F_t],
             "grid_capacity": 2500.0
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/sessions")
+def get_sessions():
+    """
+    Retrieves all active EV charging sessions.
+    """
+    try:
+        sessions = Database.get_active_sessions()
+        return {"sessions": sessions}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/sessions")
+def create_session(session_data: dict = Body(...)):
+    """
+    Registers a new EV charging session.
+    """
+    try:
+        # In a real MVP, we'd validate the body (e.g. using Pydantic models).
+        session_id = Database.save_ev_session(session_data)
+        return {"session_id": session_id, "status": "registered"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/chargers")
+def register_charger(charger_data: dict = Body(...)):
+    """
+    Registers or updates charger infrastructure details.
+    """
+    try:
+        charger_id = Database.save_charger(charger_data)
+        return {"charger_id": charger_id, "status": "registered"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
