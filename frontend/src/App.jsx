@@ -16,7 +16,9 @@ function App() {
       <nav className="nav-bar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <Zap size={28} color="#3b82f6" />
-          <h2 style={{ margin: 0, letterSpacing: '-0.025em' }}>SmartCharge</h2>
+          <h2 style={{ margin: 0, letterSpacing: '-0.025em' }}>
+            SmartCharge <span style={{ fontSize: '0.5em', verticalAlign: 'middle', background: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>LIVE</span>
+          </h2>
         </div>
         <div className="nav-links">
           <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
