@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
-import { Routes, Route, NavLink, useNavigate } from 'react-router-dom';
-import { Activity, Calendar, Zap, ZapOff, AlertCircle, ShieldCheck, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, NavLink } from 'react-router-dom';
+import { 
+  Activity, 
+  Calendar, 
+  Zap, 
+  AlertCircle, 
+  ShieldCheck, 
+  TrendingUp, 
+  Wifi, 
+  Sun,
+  Sliders
+} from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import ScheduleTable from './components/ScheduleTable';
 import SimulationPanel from './components/SimulationPanel';
@@ -10,51 +20,87 @@ import PlanningWorkspace from './components/PlanningWorkspace';
 
 function App() {
   const [simulationData, setSimulationData] = useState(null);
+  const [currentTime, setCurrentTime] = useState('');
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setCurrentTime(now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app-container">
-      <nav className="nav-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Zap size={28} color="#3b82f6" />
-          <h2 style={{ margin: 0, letterSpacing: '-0.025em' }}>
-            SmartCharge <span style={{ fontSize: '0.5em', verticalAlign: 'middle', background: '#ef4444', color: 'white', padding: '2px 6px', borderRadius: '4px', marginLeft: '8px' }}>LIVE</span>
-          </h2>
+      {/* Precision AERA-style Top Automotive Header */}
+      <header className="aera-header">
+        <div className="brand-cluster">
+          <div className="brand-badge">⚡</div>
+          <div className="brand-meta">
+            <div className="brand-title">
+              SmartCharge
+              <span style={{ 
+                fontSize: '0.62rem', 
+                color: 'var(--accent-mint)', 
+                border: '1px solid var(--safe-border)',
+                background: 'var(--safe-bg)',
+                padding: '1px 6px',
+                borderRadius: '2px',
+                letterSpacing: '0.1em'
+              }}>
+                OS v2.4
+              </span>
+            </div>
+            <div className="brand-subtitle">EV SYSTEM READY // GRID AWARE</div>
+          </div>
         </div>
-        <div className="nav-links">
-          <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Activity size={18} /> Command Center
-            </div>
-          </NavLink>
-          <NavLink to="/schedule" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Calendar size={18} /> Charging Schedule
-            </div>
-          </NavLink>
-          <NavLink to="/simulation" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ZapOff size={18} /> Simulation / Impact
-            </div>
-          </NavLink>
-          <NavLink to="/planning" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <TrendingUp size={18} /> Planning Workspace
-            </div>
-          </NavLink>
-          <NavLink to="/alerts" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AlertCircle size={18} /> Alerts
-            </div>
-          </NavLink>
-          <NavLink to="/audit" className={({ isActive }) => isActive ? "active" : ""}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck size={18} /> Audit Log
-            </div>
-          </NavLink>
-        </div>
-      </nav>
 
-      <main className="fade-in">
+        <nav className="nav-cluster">
+          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`} end>
+            <Activity size={15} />
+            <span>Command Center</span>
+          </NavLink>
+          <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <Calendar size={15} />
+            <span>Schedule</span>
+          </NavLink>
+          <NavLink to="/simulation" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <Zap size={15} />
+            <span>Simulation</span>
+          </NavLink>
+          <NavLink to="/planning" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <TrendingUp size={15} />
+            <span>Planning</span>
+          </NavLink>
+          <NavLink to="/alerts" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <AlertCircle size={15} />
+            <span>Alerts</span>
+          </NavLink>
+          <NavLink to="/audit" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+            <ShieldCheck size={15} />
+            <span>Audit</span>
+          </NavLink>
+        </nav>
+
+        <div className="header-telemetry">
+          <div className="telemetry-item" title="Telemetry Uplink Stable">
+            <Wifi size={14} color="var(--text-secondary)" />
+            <span>5G-GRID</span>
+          </div>
+          <div className="telemetry-item">
+            <span className="status-indicator-dot"></span>
+            <span style={{ color: 'var(--accent-mint)', fontWeight: 600 }}>ONLINE</span>
+          </div>
+          <div className="telemetry-item" style={{ color: '#fff', fontWeight: 600, minWidth: '65px' }}>
+            {currentTime || '16:58:00'}
+          </div>
+        </div>
+      </header>
+
+      {/* Main Viewport */}
+      <main className="main-viewport">
         <Routes>
           <Route path="/" element={<Dashboard simulationData={simulationData} />} />
           <Route path="/schedule" element={<ScheduleTable simulationData={simulationData} />} />
