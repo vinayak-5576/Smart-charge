@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SmartCharge Serverless API
+
+  AWS SAM Template for SmartCharge Backend
+
+  '
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Environment:
+      Variables:
+        DYNAMODB_TABLE:
+          Ref: SmartChargeTable
+        S3_BUCKET:
+          Ref: SmartChargeBucket
+Resources:
+  SmartChargeApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      MemorySize: 2048
+      Timeout: 60
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SmartChargeTable
+      - S3CrudPolicy:
+          BucketName:
+            Ref: SmartChargeBucket
+      Events:
+        ProxyApiRoot:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        ProxyApiGreedy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      ImageUri: smartchargeapifunction:python3.13-v1
+    Metadata:
+      DockerContext: C:\Users\Siri Y Deepak\OneDrive\Desktop\Smart-charge
+      DockerTag: python3.13-v1
+      Dockerfile: Dockerfile
+      SamResourceId: SmartChargeApiFunction
+  SmartChargeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SmartChargeSimulations
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: simulation_id
+        AttributeType: S
+      - AttributeName: entity_type
+        AttributeType: S
+      KeySchema:
+      - AttributeName: simulation_id
+        KeyType: HASH
+      - AttributeName: entity_type
+        KeyType: RANGE
+  SmartChargeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: smartcharge-artifacts-${AWS::AccountId}-${AWS::Region}
+Outputs:
+  SmartChargeApiUrl:
+    Description: API Gateway endpoint URL for Prod stage for SmartCharge API
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  SmartChargeApiFunction:
+    Description: SmartCharge Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - SmartChargeApiFunction
+      - Arn

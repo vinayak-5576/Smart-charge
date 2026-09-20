@@ -4,10 +4,9 @@ version = 0.1
 stack_name = "smartcharge"
 resolve_s3 = true
 s3_prefix = "smartcharge"
-region = "ap-south-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-image_repositories = []
+image_repositories = ["SmartChargeApiFunction=062956467027.dkr.ecr.ap-south-1.amazonaws.com/smartcharge49ce6aed/smartchargeapifunction9055d27arepo"]
 
 [default.global.parameters]
 region = "ap-south-1"

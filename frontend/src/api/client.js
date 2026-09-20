@@ -1,9 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://lj8tjaipcj.execute-api.ap-south-1.amazonaws.com/Prod';
 
 class ApiClient {
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -16,7 +16,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       // Attempt to parse JSON regardless of status for error messages
       let data = null;
       try {

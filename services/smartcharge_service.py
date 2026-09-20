@@ -8,7 +8,7 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from models.integration.forecast_optimizer import run_forecast_optimized_simulation as core_sim
-from tests.test_optimizer import create_mock_requests
+from services.mock_data import create_mock_requests
 
 def run_forecast_optimized_simulation(config):
     """

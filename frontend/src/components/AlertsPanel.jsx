@@ -14,7 +14,7 @@ const AlertsPanel = () => {
 
   useEffect(() => {
     // Fetch from real API connected to DynamoDB
-    fetch('http://localhost:8001/alerts')
+    fetch('https://lj8tjaipcj.execute-api.ap-south-1.amazonaws.com/Prod/alerts')
       .then(res => res.json())
       .then(data => {
         if (data.alerts) {
@@ -47,14 +47,14 @@ const AlertsPanel = () => {
         System Alerts
       </h2>
       <p style={{ color: '#64748b', marginBottom: '20px' }}>Active notifications requiring operator review.</p>
-      
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {alerts.map(alert => (
-          <div key={alert.alert_id} style={{ 
-            display: 'flex', 
-            gap: '16px', 
-            padding: '16px', 
-            borderRadius: '8px', 
+          <div key={alert.alert_id} style={{
+            display: 'flex',
+            gap: '16px',
+            padding: '16px',
+            borderRadius: '8px',
             borderLeft: `4px solid ${alert.severity === 'CRITICAL' ? '#ef4444' : alert.severity === 'HIGH' ? '#f97316' : '#3b82f6'}`,
             backgroundColor: 'rgba(255,255,255,0.02)',
             border: '1px solid rgba(255,255,255,0.1)'
@@ -68,8 +68,8 @@ const AlertsPanel = () => {
               <p style={{ margin: 0, color: '#cbd5e1' }}>{alert.message}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 style={{ padding: '6px 12px', fontSize: '0.9em' }}
                 onClick={() => setAlerts(alerts.filter(a => a.alert_id !== alert.alert_id))}
               >
