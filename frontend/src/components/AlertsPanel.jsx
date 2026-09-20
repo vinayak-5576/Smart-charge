@@ -68,7 +68,13 @@ const AlertsPanel = () => {
               <p style={{ margin: 0, color: '#cbd5e1' }}>{alert.message}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-              <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.9em' }}>Acknowledge</button>
+              <button 
+                className="btn-secondary" 
+                style={{ padding: '6px 12px', fontSize: '0.9em' }}
+                onClick={() => setAlerts(alerts.filter(a => a.alert_id !== alert.alert_id))}
+              >
+                Acknowledge
+              </button>
             </div>
           </div>
         ))}

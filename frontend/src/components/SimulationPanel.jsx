@@ -52,7 +52,7 @@ export default function SimulationPanel({ setSimulationData, simulationData }) {
           </div>
           <button className="btn btn-primary" onClick={handleRunSimulation} disabled={loading}>
             {loading ? <div className="loader" style={{ width: '16px', height: '16px', borderWidth: '2px' }}/> : <Play size={18} />}
-            {loading ? 'Simulating...' : 'RUN SIMULATION'}
+            {loading ? 'Calculating Safe Schedule...' : 'RUN SIMULATION'}
           </button>
         </div>
 
@@ -111,7 +111,12 @@ export default function SimulationPanel({ setSimulationData, simulationData }) {
             </div>
             <div className="glass-panel kpi-card">
               <div className="kpi-title">Peak Reduction</div>
-              <div><span className="kpi-value">{simulationData.peak_reduction.toFixed(1)}</span><span className="kpi-unit">%</span></div>
+              <div>
+                <span className="kpi-value" style={{ color: simulationData.peak_reduction > 0 ? 'var(--safe-color)' : 'var(--critical-color)' }}>
+                  {simulationData.peak_reduction.toFixed(1)}
+                </span>
+                <span className="kpi-unit" style={{ color: simulationData.peak_reduction > 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)' }}>%</span>
+              </div>
             </div>
           </div>
 
