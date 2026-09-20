@@ -80,6 +80,20 @@ def simulate_what_if(config: dict = Body(...)):
         if not sim_id:
             raise HTTPException(status_code=500, detail="Simulation failed to generate an ID")
             
+        # Evaluate for alerts during What-If so the user can generate real ones from the dashboard
+        if not result.get('feasible', True):
+            Database.save_alert({
+                "type": "INFEASIBLE_WHAT_IF_SCENARIO",
+                "message": f"What-If Simulation {sim_id[:8]} was infeasible. The grid cannot support this level of EV adoption.",
+                "severity": "HIGH"
+            })
+        elif not result.get('grid_compliance', True):
+            Database.save_alert({
+                "type": "GRID_VIOLATION_PREDICTED",
+                "message": f"What-If Simulation {sim_id[:8]} predicts future grid capacity violations.",
+                "severity": "CRITICAL"
+            })
+            
         # Do not persist what-if simulations to AWS Storage to save cost/clutter
         # Return full results so frontend can draw graphs
         return result

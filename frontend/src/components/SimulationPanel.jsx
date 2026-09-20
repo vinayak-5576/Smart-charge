@@ -64,7 +64,7 @@ export default function SimulationPanel({ setSimulationData, simulationData }) {
             </label>
             <input 
               type="range" 
-              min="0" max="200" step="10" 
+              min="0" max="1000" step="50" 
               value={evGrowth} 
               onChange={(e) => setEvGrowth(parseInt(e.target.value))}
               style={{ width: '100%', accentColor: 'var(--brand-color)' }}

@@ -174,7 +174,7 @@ def run_smart_schedule(requests, grid_capacity, station_capacities, background_l
         prob += total_ev_load + background_load[i] <= grid_capacity
         prob += total_ev_load + background_load[i] <= Z
         
-    prob.solve(pulp.PULP_CBC_CMD(msg=False))
+    prob.solve(pulp.PULP_CBC_CMD(msg=False, timeLimit=10))
     
     if pulp.LpStatus[prob.status] != 'Optimal':
         # Fallback to run baseline if infeasible, just to return a structure, but marked infeasible
