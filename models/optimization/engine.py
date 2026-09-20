@@ -86,7 +86,7 @@ def run_baseline_schedule(requests, grid_capacity, station_capacities, backgroun
         'slots': slots
     }
 
-def run_smart_schedule(requests, grid_capacity, station_capacities, background_load=None, dt_hours=1.0):
+def run_smart_schedule(requests, grid_capacity, station_capacities, background_load=None, dt_hours=1.0, cost_profile=None, renewable_profile=None):
     slots, _ = discretize_time(requests, dt_hours)
     n_slots = len(slots)
     
@@ -114,21 +114,50 @@ def run_smart_schedule(requests, grid_capacity, station_capacities, background_l
                 
     Z = pulp.LpVariable("Z_PeakLoad", lowBound=0)
     
-    # Secondary Objective: Penalize delay
-    # penalty weight is intentionally small to ensure Z dominates
-    penalty_weight = 0.0001
+    # Generate default TOU Cost profile if not provided
+    if cost_profile is None:
+        cost_profile = np.ones(n_slots)
+        for i, t in enumerate(slots):
+            if 16 <= t.hour < 21:
+                cost_profile[i] = 2.0  # Peak pricing
+            elif 0 <= t.hour < 6:
+                cost_profile[i] = 0.5  # Off-peak pricing
+                
+    # Generate default Renewable (Solar) profile if not provided
+    if renewable_profile is None:
+        renewable_profile = np.zeros(n_slots)
+        for i, t in enumerate(slots):
+            if 10 <= t.hour < 15:
+                renewable_profile[i] = 1.5 # High solar
+    
+    # Secondary Objectives: Penalize delay, minimize cost, maximize renewable usage
+    # Penalty weights must be small enough so Z (Peak Load) still dominates grid safety
+    weight_peak = 1.0
+    weight_cost = 0.005 
+    weight_renewable = -0.01 # Negative cost (reward) for using renewables
+    weight_delay = 0.0001
+    
     delay_penalty = 0
+    cost_penalty = 0
+    renewable_reward = 0
     
     for r in requests:
         ev = r['ev_id']
         arr = pd.to_datetime(r['arrival_time'])
         for i, t in enumerate(slots):
             if type(P[ev][i]) != int: # Check if it is an LpVariable
-                # Delay measured in hours from arrival to the start of this time slot
+                # Delay penalty
                 delay_hours = max(0, (t - arr).total_seconds() / 3600.0)
-                delay_penalty += P[ev][i] * delay_hours * penalty_weight
+                delay_penalty += P[ev][i] * delay_hours * weight_delay
                 
-    prob += Z + delay_penalty
+                # TOU Cost penalty
+                cost_penalty += P[ev][i] * cost_profile[i] * weight_cost
+                
+                # Renewable Reward
+                renewable_reward += P[ev][i] * renewable_profile[i] * weight_renewable
+                
+    # New Multi-Objective Function
+    prob += (weight_peak * Z) + delay_penalty + cost_penalty + renewable_reward
     
     for r in requests:
         ev = r['ev_id']

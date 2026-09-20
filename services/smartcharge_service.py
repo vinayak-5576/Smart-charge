@@ -41,6 +41,8 @@ def run_forecast_optimized_simulation(config):
     
     # 1. & 3. Load or generate EV requests
     scenario_type = config.get('scenario_type', 'mock')
+    ev_growth_percent = config.get('ev_growth_percent', 0.0)
+    
     if scenario_type == 'csv':
         filepath = config.get('scenario_file')
         if not filepath or not os.path.exists(filepath):
@@ -50,12 +52,20 @@ def run_forecast_optimized_simulation(config):
         scenario_name = os.path.basename(filepath)
     else:
         num_evs = config.get('num_evs', 50)
+        # Apply What-If EV Growth
+        if ev_growth_percent > 0:
+            num_evs = int(num_evs * (1.0 + (ev_growth_percent / 100.0)))
+            
         flex_buffer = config.get('flexibility_buffer_hours', 4.0)
         requests = create_mock_requests(num_evs, flexibility_buffer_hours=flex_buffer)
         scenario_name = f"Mock_{num_evs}EVs"
         
     # Energy requirement
     energy_required = sum(r['energy_required_kWh'] for r in requests)
+        
+    # Apply What-If Solar Capacity (Optional: this could generate a renewable_profile array, but Engine handles default generation for MVP)
+    # We pass it just to trigger the default logic in engine if requested
+    solar_modifier = config.get('solar_capacity_modifier', 0.0)
         
     # 2, 4, 5. Run core simulation (which internally handles forecast, baseline, and optimization)
     try:
@@ -64,7 +74,10 @@ def run_forecast_optimized_simulation(config):
             grid_capacity=grid_capacity,
             station_capacities=station_capacities,
             dt_hours=dt_hours,
-            forecast_modifier=forecast_modifier
+            forecast_modifier=forecast_modifier,
+            # Pass None to trigger engine's default generation, but could build array here
+            cost_profile=None, 
+            renewable_profile=None
         )
     except Exception as e:
         return {

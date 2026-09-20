@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
 
 class ApiClient {
   async request(endpoint, options = {}) {
@@ -42,6 +42,13 @@ class ApiClient {
 
   async runSimulation(config) {
     return this.request('/simulation', {
+      method: 'POST',
+      body: JSON.stringify(config)
+    });
+  }
+
+  async simulateWhatIf(config) {
+    return this.request('/simulate_what_if', {
       method: 'POST',
       body: JSON.stringify(config)
     });

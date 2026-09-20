@@ -65,6 +65,28 @@ def create_simulation(config: dict = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/simulate_what_if")
+def simulate_what_if(config: dict = Body(...)):
+    """
+    Executes a What-If Scenario simulation for infrastructure planning.
+    Expects ev_growth_percent and solar_capacity_modifier.
+    """
+    try:
+        # Default scenario to mock for simulations
+        config['scenario_type'] = 'mock'
+        result = run_forecast_optimized_simulation(config)
+        
+        sim_id = result.get('simulation_id')
+        if not sim_id:
+            raise HTTPException(status_code=500, detail="Simulation failed to generate an ID")
+            
+        # Do not persist what-if simulations to AWS Storage to save cost/clutter
+        # Return full results so frontend can draw graphs
+        return result
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/alerts")
 def get_alerts():
     """

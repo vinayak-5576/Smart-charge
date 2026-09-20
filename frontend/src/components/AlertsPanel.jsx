@@ -13,20 +13,18 @@ const AlertsPanel = () => {
   ];
 
   useEffect(() => {
-    // Attempt to fetch from API, fallback to mock if failed
-    fetch('http://localhost:8000/alerts')
+    // Fetch from real API connected to DynamoDB
+    fetch('http://localhost:8001/alerts')
       .then(res => res.json())
       .then(data => {
-        if (data.alerts && data.alerts.length > 0) {
+        if (data.alerts) {
           setAlerts(data.alerts);
-        } else {
-          setAlerts(mockAlerts);
         }
         setLoading(false);
       })
       .catch(err => {
-        console.warn("Backend not reachable, using mock alerts.");
-        setAlerts(mockAlerts);
+        console.error("Backend not reachable. Please start the Python server.", err);
+        setAlerts([]); // Empty array instead of mock data
         setLoading(false);
       });
   }, []);

@@ -6,6 +6,8 @@ import { Zap, Play, CheckCircle2, AlertOctagon } from 'lucide-react';
 export default function SimulationPanel({ setSimulationData, simulationData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [evGrowth, setEvGrowth] = useState(0);
+  const [solarGrowth, setSolarGrowth] = useState(0);
 
   const handleRunSimulation = async () => {
     setLoading(true);
@@ -19,9 +21,17 @@ export default function SimulationPanel({ setSimulationData, simulationData }) {
         num_stations: 20,
         station_capacity: 105.0,
         dt_hours: 0.5,
-        forecast_modifier: 0.0
+        forecast_modifier: 0.0,
+        ev_growth_percent: evGrowth,
+        solar_capacity_modifier: solarGrowth
       };
-      const res = await api.runSimulation(config);
+      const res = await api.simulateWhatIf(config);
+      
+      // If the backend threw an exception during core_sim, it returns an error object without peaks
+      if (res.baseline_peak === undefined) {
+        throw new Error(res.failure_reason || res.error || "Simulation failed critically on the backend.");
+      }
+      
       setSimulationData(res);
     } catch (err) {
       setError(err.message);
@@ -34,15 +44,48 @@ export default function SimulationPanel({ setSimulationData, simulationData }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       {/* Control Panel */}
-      <div className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>SmartCharge Engine</h2>
-          <p style={{ color: 'var(--text-secondary)' }}>Run deterministic LP optimization over a 500 EV scenario.</p>
+      <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>What-If Scenario Planning</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>Simulate future infrastructure impacts using the upgraded Optimization Engine (Phase 2 & 3).</p>
+          </div>
+          <button className="btn btn-primary" onClick={handleRunSimulation} disabled={loading}>
+            {loading ? <div className="loader" style={{ width: '16px', height: '16px', borderWidth: '2px' }}/> : <Play size={18} />}
+            {loading ? 'Simulating...' : 'RUN SIMULATION'}
+          </button>
         </div>
-        <button className="btn btn-primary" onClick={handleRunSimulation} disabled={loading}>
-          {loading ? <div className="loader" style={{ width: '16px', height: '16px', borderWidth: '2px' }}/> : <Play size={18} />}
-          {loading ? 'Optimizing...' : 'RUN SMARTCHARGE'}
-        </button>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div>
+            <label style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>EV Adoption Growth</span>
+              <span style={{ color: 'var(--brand-color)' }}>+{evGrowth}%</span>
+            </label>
+            <input 
+              type="range" 
+              min="0" max="200" step="10" 
+              value={evGrowth} 
+              onChange={(e) => setEvGrowth(parseInt(e.target.value))}
+              style={{ width: '100%', accentColor: 'var(--brand-color)' }}
+            />
+            <small style={{ color: 'var(--text-secondary)' }}>Increase the baseline number of EVs (Stress Test)</small>
+          </div>
+          <div>
+            <label style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span>Renewable Solar Additions</span>
+              <span style={{ color: 'var(--safe-color)' }}>+{solarGrowth}%</span>
+            </label>
+            <input 
+              type="range" 
+              min="0" max="200" step="10" 
+              value={solarGrowth} 
+              onChange={(e) => setSolarGrowth(parseInt(e.target.value))}
+              style={{ width: '100%', accentColor: 'var(--safe-color)' }}
+            />
+            <small style={{ color: 'var(--text-secondary)' }}>Increase solar energy availability during midday (Cost Reduction)</small>
+          </div>
+        </div>
       </div>
 
       {error && (

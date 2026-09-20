@@ -91,7 +91,7 @@ def generate_aligned_forecast(num_slots, dt_hours=0.5, modifier_percent=0.0):
     
     return aligned_forecast
 
-def run_forecast_optimized_simulation(requests, grid_capacity, station_capacities, dt_hours=0.5, forecast_modifier=0.0):
+def run_forecast_optimized_simulation(requests, grid_capacity, station_capacities, dt_hours=0.5, forecast_modifier=0.0, **kwargs):
     """
     Runs the full integrated pipeline: Forecast -> Semantics -> Optimizer.
     """
@@ -120,7 +120,10 @@ def run_forecast_optimized_simulation(requests, grid_capacity, station_capacitie
     
     # 5. Run Baseline and SmartCharge WITH the rigid background load
     baseline_res = run_baseline_schedule(requests, grid_capacity, station_capacities, background_load=U_t, dt_hours=dt_hours)
-    smart_res = run_smart_schedule(requests, grid_capacity, station_capacities, background_load=U_t, dt_hours=dt_hours)
+    smart_res = run_smart_schedule(
+        requests, grid_capacity, station_capacities, background_load=U_t, dt_hours=dt_hours,
+        cost_profile=kwargs.get('cost_profile'), renewable_profile=kwargs.get('renewable_profile')
+    )
     
     return {
         'forecast_F_t': F_t,
