@@ -21,64 +21,26 @@ def generate_aligned_forecast(num_slots, dt_hours=0.5, modifier_percent=0.0):
     # If we have 28 slots of 30 mins, we need 14 hours of forecast.
     num_hours = int(np.ceil(num_slots * dt_hours))
     
-    # Load historical processed data
-    data_path = 'data/processed/forecasting_data.csv'
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Missing {data_path}")
+    # Generate a synthetic realistic urban demand curve
+    hourly_grid_load = np.zeros(num_hours)
+    for h in range(num_hours):
+        hour_of_day = h % 24
         
-    df = pd.read_csv(data_path)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    
-    # Let's pick a known evening peak in the test set to be our deterministic forecast base
-    # We will grab a block of data starting around 16:00
-    df_sorted = df.sort_values('timestamp')
-    unique_times = df_sorted['timestamp'].unique()
-    
-    # Find a 16:00 timestamp near the end (test set)
-    start_time = None
-    for t in reversed(unique_times):
-        dt = pd.to_datetime(t)
-        if dt.hour == 16:
-            start_time = t
-            break
-            
-    if start_time is None:
-        start_time = unique_times[0]
+        # Base load (always on)
+        base = 400
         
-    # Get the next `num_hours` timestamps
-    start_idx = np.where(unique_times == start_time)[0][0]
-    end_idx = min(start_idx + num_hours, len(unique_times))
-    selected_times = unique_times[start_idx:end_idx]
-    
-    # If we run out of historical data, just pad by repeating the last available hour
-    pad_needed = num_hours - len(selected_times)
-    
-    # Predict on entire dataset to ensure lag features are computed correctly
-    try:
-        # We need to copy to avoid SettingWithCopyWarning
-        df_pred = df.copy()
-        forecast_values = predict_demand(df_pred)
-        # predict_demand drops the first hour (NaN lag), so we must align indices
-        # We know predict_demand sorts by station_id and timestamp, so we should do the same
-        df_pred = df_pred.sort_values(['station_id', 'timestamp'])
-        df_pred['lag_1_demand'] = df_pred.groupby('station_id')['charging_demand'].shift(1)
-        df_pred = df_pred.dropna(subset=['lag_1_demand']).copy()
+        # Morning peak (around 8am) - Moderate level
+        morning = 800 * np.exp(-((hour_of_day - 8)**2) / (2 * 2**2))
         
-        df_pred['predicted_demand'] = forecast_values
-    except Exception as e:
-        raise RuntimeError(f"Forecasting failed: {str(e)}")
-    
-    # Filter to selected times
-    df_subset = df_pred[df_pred['timestamp'].isin(selected_times)].copy()
-    
-    # Aggregate across all stations for each hour to get total grid load
-    hourly_grid_load = df_subset.groupby('timestamp')['predicted_demand'].sum().values
-    
-    if pad_needed > 0:
-        last_val = hourly_grid_load[-1] if len(hourly_grid_load) > 0 else 0
-        hourly_grid_load = np.append(hourly_grid_load, [last_val] * pad_needed)
+        # Evening peak (around 7pm / 19:00) - High stress level (3/4 capacity)
+        evening = 1500 * np.exp(-((hour_of_day - 19)**2) / (2 * 2.5**2))
         
-    # Apply modifier
+        # Small afternoon plateau
+        afternoon = 300 * np.exp(-((hour_of_day - 13)**2) / (2 * 4**2))
+        
+        hourly_grid_load[h] = base + morning + evening + afternoon
+        
+    # Apply modifier (if any)
     hourly_grid_load = hourly_grid_load * (1.0 + (modifier_percent / 100.0))
     
     # 2. Time Alignment (Hourly -> 30 min)
