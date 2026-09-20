@@ -1,69 +1,133 @@
-# ⚡ SmartCharge: Grid-Aware EV Charging Optimization Platform
+# ⚡ SmartCharge // Grid Intelligence OS
 
-SmartCharge is an intelligent, end-to-end platform designed to optimize Electric Vehicle (EV) charging at scale. By combining **Machine Learning (Random Forest Forecasting)** with **Linear Programming (LP) Optimization**, SmartCharge coordinates the charging schedules of hundreds of EVs simultaneously to prevent electrical grid overload while ensuring every vehicle meets its departure deadline.
+> **Automotive-Grade Grid-Aware EV Charging Optimization Platform**  
+> Coordinating fleet-scale Electric Vehicle dispatch with Machine Learning demand forecasting and Linear Programming peak shaving.
 
-## 🌟 Key Features
+---
 
-### 1. 📈 Predictive Grid Demand Forecasting
-- Uses a trained **Random Forest Machine Learning model** to predict baseline electrical grid demand 48 hours into the future.
-- Analyzes historical patterns, time-of-day, and weather correlations to accurately identify upcoming grid stress periods.
-- Serves as the foundation for the "safe zone" calculation for EV charging.
+## 🌟 Overview
 
-### 2. ⚡ SmartCharge LP Optimization Engine
-- Takes in hundreds of EV requests (arrival time, energy required, departure deadline).
-- Uses **Linear Programming (PuLP)** to intelligently distribute charging power across time.
-- **Minimizes maximum peak load** (Peak Shaving) through a deterministic water-filling scheduling algorithm.
-- Mathematically guarantees **100% deadline compliance** and zero grid constraint violations.
+As Electric Vehicle adoption scales exponentially, uncoordinated charging creates severe grid congestion and transformer overloads during peak hours. **SmartCharge** coordinates the charging schedules of hundreds to thousands of EVs simultaneously. 
 
-### 3. 💻 Interactive React Command Center
-- **Dashboard:** Real-time visibility into the grid's capacity, active EVs, and the 48-hour forecast vs. capacity limits.
-- **Simulation/Impact:** A strategic simulation sandbox to compare "Dumb Charging" (baseline) vs. "Smart Charging" (optimized), demonstrating actionable Peak Reduction % metrics.
-- **Charging Schedule:** Granular, vehicle-by-vehicle dispatch tables showing dynamic throttling and assigned power.
+By combining a **48-Hour Random Forest Load Forecast** with a **Linear Programming (LP) Water-Filling Optimization Engine**, SmartCharge flattens aggregate demand, guarantees zero substation capacity violations, and ensures 100% departure deadline compliance for all vehicles.
 
-### 4. ☁️ AWS Cloud Architecture (Ready)
-- Built on a modern **FastAPI** Python backend.
-- Designed for seamless serverless deployment using **AWS Lambda** (Container Image).
-- Ready for persistence integration with **AWS DynamoDB** and **S3**.
+---
+
+## 🏎️ Automotive-Grade Command Center (AERA-Inspired UI)
+
+SmartCharge features a high-contrast, pure-black cockpit design system inspired by modern automotive telemetry interfaces:
+
+- **Instrument Cluster Command Center (`/`)**:
+  - **Tri-Pane Cockpit**: Live dispatch ratio with dynamic load bar, central circular peak load speedometer with substation limit badge (`CEILING 2,500 kW`), and connected fleet telemetry.
+  - **Power Flow Telemetry**: Real-time distribution visualization (`[GRID] ─── [CHARGERS] ─── [EVs]`).
+  - **48-Hour High-Contrast Forecast Curve**: Recharts telemetry comparing forecasted background demand against physical substation thresholds.
+
+- **What-If Simulation Sandbox (`/simulation`)**:
+  - **Automotive Presets**: Toggle between `[ECO]`, `[COMFORT]`, and `[AGGRESSIVE]` optimization buffers.
+  - **Stress Test Controls**: Real-time sliders for EV fleet growth (up to +1000%) and midday solar offset (+200%).
+  - **Comparative Load Shifting**: Side-by-side bar chart benchmarking dumb unmanaged charging against deterministic SmartCharge dispatch.
+
+- **Fleet Charging Schedule & Dispatch Table (`/schedule`)**:
+  - Granular telemetry table featuring EV ID, port attachment, window durations, energy required, and live battery SOC progress bars.
+  - Interactive **Cockpit HUD Modal** with battery charge delta, charger output ratings, and solver dispatch advice.
+
+- **Infrastructure Planning Workspace (`/planning`)**:
+  - Simultaneous dual-scenario optimization benchmarking (Scenario A vs. Scenario B).
+  - Side-by-side KPI outcomes and comparative dispatch profiles.
+
+- **Grid Diagnostic Alarms (`/alerts`) & Cryptographic Audit Ledger (`/audit`)**:
+  - Priority alarm feed with instant acknowledgment.
+  - Immutable operator action ledger with monospace timestamps and category tags.
+
+---
 
 ## 🛠️ Technology Stack
-- **Frontend:** React, Vite, Recharts, Vanilla CSS
-- **Backend/API:** Python, FastAPI, Mangum
-- **Machine Learning:** Scikit-learn (Random Forest Regressor), Pandas, NumPy
-- **Optimization Engine:** PuLP (Linear Programming CBC solver)
-- **Deployment/Cloud:** Docker, AWS SAM, AWS Lambda, API Gateway
+
+| Layer | Technologies |
+|---|---|
+| **Frontend UI** | React, Vite, Recharts, Lucide Icons, Vanilla CSS (AERA Dark Design System) |
+| **Typography** | `Inter` (UI Sans) + `JetBrains Mono` (Telemetry & Numeric Readouts) |
+| **Backend API** | Python 3.11, FastAPI, Uvicorn, Mangum (AWS Lambda ASGI adapter) |
+| **Machine Learning** | Scikit-learn (Random Forest Regressor), Pandas, NumPy |
+| **Optimization Engine** | PuLP (CBC Linear Programming Solver) |
+| **Cloud & Storage** | AWS Lambda, API Gateway, DynamoDB, S3, Docker, AWS SAM |
+
+---
 
 ## 🚀 Getting Started Locally
 
 ### Prerequisites
-- Python 3.11+
-- Node.js (for the frontend)
+- **Python 3.11+**
+- **Node.js 18+** & **npm**
 
-### 1. Start the Backend API
+---
+
+### 1. Start the Backend API (FastAPI)
+
 ```bash
+# Clone the repository
+git clone https://github.com/vinayak-5576/Smart-charge.git
+cd Smart-charge
+
 # Create and activate virtual environment
 python -m venv .venv
-source .venv/Scripts/activate  # Windows
+source .venv/Scripts/activate      # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the FastAPI server
-uvicorn api.main:app --port 8000
+# Launch FastAPI server
+python -m uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
-
-### 2. Start the Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Navigate to `http://localhost:5173/` to view the SmartCharge Command Center.
-
-## 📊 How It Works
-1. **The Forecast:** The ML model generates a 48-hour background load curve.
-2. **The Requests:** EVs plug in, generating energy demands and hard departure deadlines.
-3. **The Optimizer:** The system calculates the exact difference between the forecasted load and maximum grid capacity, fitting EV charging into the "valleys" of demand to avoid creating new peaks.
-4. **The Schedule:** Dispatch instructions are generated for every minute.
+The API documentation is accessible at `http://localhost:8000/docs`.
 
 ---
-*Built to solve the modern grid congestion crisis caused by EV adoption at scale.*
+
+### 2. Start the Frontend (Vite Cockpit)
+
+In a separate terminal window:
+
+```bash
+cd frontend
+
+# Install packages
+npm install
+
+# Start Vite development server
+npm run dev
+```
+
+Navigate to **`http://localhost:5173/`** to view the live SmartCharge Cockpit.
+
+---
+
+## 📊 How It Works
+
+```
+ ┌───────────────────────────┐      ┌───────────────────────────┐
+ │   48-Hour ML Forecast     │      │   EV Dispatch Requests    │
+ │ (Random Forest Regressor) │      │ (Arrival, Deadline, kWh)  │
+ └─────────────┬─────────────┘      └─────────────┬─────────────┘
+               │                                  │
+               ▼                                  ▼
+ ┌──────────────────────────────────────────────────────────────┐
+ │             SmartCharge LP Optimization Engine               │
+ │           (PuLP Deterministic Water-Filling Model)           │
+ └──────────────────────────────┬───────────────────────────────┘
+                                │
+                                ▼
+ ┌──────────────────────────────────────────────────────────────┐
+ │         Coordinated Fleet Charging Schedule & Telemetry      │
+ │    100% Deadline Compliance • Zero Grid Capacity Violations  │
+ └──────────────────────────────────────────────────────────────┘
+```
+
+1. **Predictive Baseline Load**: The Random Forest regressor predicts 48 hours of background electrical demand across 30-minute intervals.
+2. **Dynamic Headroom Calculation**: The system computes the margin between forecasted demand and maximum transformer capacity (`2,500 kW`).
+3. **Linear Program Dispatch**: Using water-filling peak-shaving constraints, the solver assigns charging power to optimal low-stress intervals.
+4. **Guaranteed Delivery**: Hard constraints ensure every EV reaches its target State-of-Charge (SOC) prior to its departure deadline.
+
+---
+
+## 📄 License
+This project is open-source under the MIT License.

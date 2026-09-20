@@ -1,16 +1,26 @@
-# React + Vite
+# SmartCharge // Cockpit Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The frontend client for the **SmartCharge** Grid Intelligence Platform, built with React, Vite, Recharts, and a custom automotive telemetry design system inspired by the AERA EV cockpit.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Automotive Dark Design System**: Pure cockpit black (`#06080c`), high-contrast `#00e5a0` neon emerald and `#38bdf8` cyan telemetry accents.
+- **Instrument Cluster**: Speedometer-style central load gauge with limit pill badge, live dispatch ratio bar, and power flow diagram.
+- **Live 48-Hour Demand Curve**: High-contrast Recharts telemetry graph displaying forecasted background demand vs. grid threshold.
+- **What-If Simulation Sandbox**: Preset toggles (`[ECO]`, `[COMFORT]`, `[AGGRESSIVE]`) and real-time stress testing sliders.
+- **Fleet Dispatch Table**: Fleet schedule with live SOC mini-progress tracks, urgent filtering, and detailed EV telemetry modal.
+- **Dual-Scenario Planning**: Side-by-side Scenario A vs. Scenario B benchmark simulator.
+- **Diagnostics & Ledger**: Real-time alarm feed and immutable audit trail.
 
-## React Compiler
+## Local Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the Oxlint configuration
+# Start development server
+npm run dev
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+# Build for production
+npm run build
+```
